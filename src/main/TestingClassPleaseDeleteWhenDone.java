@@ -4,11 +4,12 @@ import hardwareComponents.*;
 
 public class TestingClassPleaseDeleteWhenDone {
 	
-	public static void main(String[]args) {
+	public synchronized static void main(String[]args) {
 		Clock clock = new Clock();
-		Register r = new Register(16, clock);
-		new Thread(r).start();
+		Register.setClock(clock);
+		Register r = new Register(16);
 		new Thread(clock).start();
+		new Thread(r).start();
 	}
 
 }

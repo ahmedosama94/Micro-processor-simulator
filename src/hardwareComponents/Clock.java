@@ -17,10 +17,12 @@ public class Clock implements Runnable {
 	}
 
 	@Override
-	public void run() {
+	public synchronized void run() {
 		while(true) {
 			try {
-				Thread.currentThread().wait(1000);
+				wait(1000);
+				flip();
+				System.out.println("HOBBA FLIP");
 			} catch(InterruptedException e) {
 				System.err.println(e.getMessage());
 			}

@@ -1,28 +1,29 @@
 package hardwareComponents;
 
 public class Register implements Runnable {
-	
+
 	private boolean[] connected;
 	private boolean[] bits;
 	private static Clock clock;
 	private boolean enable;
-	
-	public Register(int size, Clock clock) {
+
+	public Register(int size) {
 		bits = new boolean[size];
 		connected = new boolean[size];
+		enable = false;
 	}
-	
-	private void load() {
+
+	private synchronized void load() {
 		for(int i = 0; i < bits.length; i++) {
 			bits[i] = connected[i];
 		}
 	}
-	
-	public void connect(boolean[] newBits) {
+
+	public synchronized void connect(boolean[] newBits) {
 		connected = newBits;
 	}
-	
-	public void load(int value) {
+
+	public synchronized void connect(int value) {
 		boolean[] newValue = new boolean[bits.length];
 		for(int i = 0; i < newValue.length; i++) {
 			if(value%2 == 1) {
@@ -32,15 +33,15 @@ public class Register implements Runnable {
 			}
 			value /= 2;
 		}
-		bits = newValue;
+		connected = newValue;
 	}
-	
-	public void clear() {
+
+	public synchronized void clear() {
 		for(int i = 0; i < bits.length; i++) {
 			bits[i] = false;
 		}
 	}
-	
+
 	public int getValue() {
 		int value = 0;
 		for(int i = 0; i < bits.length; i++) {
@@ -50,11 +51,11 @@ public class Register implements Runnable {
 		}
 		return value;
 	}
-	
+
 	public boolean[] getBits() {
 		return bits;
 	}
-	
+
 	public String showBits() {
 		String result = "";
 		for(int i = 0; i < bits.length; i++) {
@@ -66,7 +67,7 @@ public class Register implements Runnable {
 		}
 		return result;
 	}
-	
+
 	public String showHexa() {
 		String result = "";
 		int value = getValue();
@@ -96,15 +97,15 @@ public class Register implements Runnable {
 		result = "0x" + result;
 		return result;
 	}
-	
+
 	public void setEnable(boolean en) {
 		enable = en;
 	}
-	
+
 	public static void setClock(Clock clock) {
 		Register.clock = clock;
 	}
-		
+
 	private void check() {
 		if(enable) {
 			load();
@@ -112,14 +113,16 @@ public class Register implements Runnable {
 	}
 
 	@Override
-	public void run() {
-		while(!clock.getClock()) {
-			
-		}
-		check();
-		System.out.println("hobba");
-		while(clock.getClock()) {
-			
+	public synchronized void run() {
+		while(true) {
+			while(!clock.getClock()) {
+				
+			}
+			check();
+			System.out.println("checked");
+			while(clock.getClock()) {
+				
+			}
 		}
 	}
 
